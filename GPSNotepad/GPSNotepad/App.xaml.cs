@@ -19,7 +19,12 @@ namespace GPSNotepad
         {
             InitializeComponent();
 
-            await NavigationService.NavigateAsync("NavigationPage/MainPage");
+            Realms.RealmConfiguration realmConfiguration = new Realms.RealmConfiguration();
+            Realms.RealmConfiguration.DefaultConfiguration = realmConfiguration;
+
+
+
+            await NavigationService.NavigateAsync("/MainPageView");
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -27,7 +32,11 @@ namespace GPSNotepad
             containerRegistry.RegisterSingleton<IAppInfo, AppInfoImplementation>();
 
             containerRegistry.RegisterForNavigation<NavigationPage>();
-            containerRegistry.RegisterForNavigation<MainPage, MainPageViewModel>();
+            containerRegistry.RegisterForNavigation<MainPageView, MainPageViewModel>();
+            containerRegistry.RegisterForNavigation<SignUpView, SignUpViewModel>();
+            containerRegistry.RegisterForNavigation<MapView, MapViewModel>();
+            containerRegistry.RegisterForNavigation<PinListView, PinListViewModel>();
+            containerRegistry.RegisterForNavigation<AddEditPinView, AddEditPinViewModel>();
         }
     }
 }

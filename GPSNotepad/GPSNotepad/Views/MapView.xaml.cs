@@ -1,9 +1,10 @@
-﻿
+﻿using Xamarin.Forms;
+
 namespace GPSNotepad.Views
 {
-    public partial class MainPage
+    public partial class MapView : ContentPage
     {
-        public MainPage()
+        public MapView()
         {
             InitializeComponent();
         }

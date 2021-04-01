@@ -7,7 +7,7 @@ using System.Text;
 
 namespace GPSNotepad.ViewModels
 {
-    public class ViewModelBase : BindableBase, IInitialize, INavigationAware, IDestructible
+    public class ViewModelBase : BindableBase
     {
         protected INavigationService NavigationService { get; private set; }
 
