@@ -3,16 +3,35 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:prism="http://prismlibrary.com"
              prism:ViewModelLocator.AutowireViewModel="True"
-             x:Class="GPSNotepad.Views.PinListView">
+             x:Class="GPSNotepad.Views.PinListView"
+             x:Name="pinListView">
 
 
     <AbsoluteLayout>
         <ScrollView>
             <StackLayout>
-                <ListView ItemsSource="{Binding Pins}">
+                <ListView ItemsSource="{Binding Pins}" 
+                          x:Name="MyListView"
+                          SelectedItem="{Binding SelectedItem}">
+                    
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <TextCell Text="{Binding PlaceName}"/>
+                            <ViewCell>
+                                <ViewCell.ContextActions>
+                                    <MenuItem
+                                        Command="{Binding BindingContext.OnEditCommand, Source={x:Reference Name=pinListView}}"
+                                        CommandParameter="{Binding .}"
+                                        Text="Edit" />
+                                    <MenuItem
+                                        Command="{Binding BindingContext.OnDeleteCommand, Source={x:Reference Name=pinListView}}"
+                                        CommandParameter="{Binding .}"
+                                        Text="Delete" />
+                                </ViewCell.ContextActions>
+
+                                <StackLayout>
+                                    <Label Text="{Binding PlaceName}"/>
+                                </StackLayout>
+                            </ViewCell>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>

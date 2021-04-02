@@ -1,25 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:prism="http://prismlibrary.com" xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
+             xmlns:prism="http://prismlibrary.com"
+             xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps" 
+             xmlns:controls="clr-namespace:GPSNotepad.Controls"
              prism:ViewModelLocator.AutowireViewModel="True"
              x:Class="GPSNotepad.Views.MapView">
 
     <AbsoluteLayout >
 
-        <maps:Map MapType="Street" HasZoomEnabled="True" 
+        <controls:CustomMap MapType="Street" HasZoomEnabled="True" 
                   AbsoluteLayout.LayoutBounds="1,1,1,1"
                   AbsoluteLayout.LayoutFlags="All"
-                  ItemsSource="{Binding Pins}"
-                  >
-            <maps:Map.ItemTemplate>
+                  ItemsSource="{Binding Pins}">
+            <controls:CustomMap.ItemTemplate>
                 <DataTemplate>
                     <maps:Pin Position="{Binding Position}"
-                            Label="{Binding Address}" />
+                            Label="{Binding PlaceName}" />
                 </DataTemplate>
-            </maps:Map.ItemTemplate>
-
-        </maps:Map>
+            </controls:CustomMap.ItemTemplate>
+        </controls:CustomMap>
 
         <StackLayout  
             AbsoluteLayout.LayoutBounds=".5,.02,.6,.1"

@@ -1,23 +1,17 @@
 ﻿using GPSNotepad.Model.Tables;
 using GPSNotepad.Repository;
-using Prism.Commands;
-using Prism.Mvvm;
 using Prism.Navigation;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows.Input;
-using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
 namespace GPSNotepad.ViewModels
 {
     public class AddEditPinViewModel : ViewModelBase, INavigationAware
     {
-        IRepository repository = new RealmRepository();
+        IRepository repository;
 
-        private string PlaceId;
+        private BasePlace Place;
         private string name = "";
         public string Name
         {
@@ -142,15 +136,11 @@ namespace GPSNotepad.ViewModels
         {
             base.OnNavigatedFrom(parameters);
 
-            BasePlace place = new BasePlace()
-            {
-                PlaceId = PlaceId,
-                PlaceName = Name,
-                Position = Position,
-                Address = Description
-            };
+            Place.PlaceName = Name;
+            Place.Address = Description;
+            Place.Position = Position;
 
-            repository.EditPlace(place);
+            repository.EditPlace(Place);
 
         }
 
@@ -158,14 +148,19 @@ namespace GPSNotepad.ViewModels
         {
             base.OnNavigatedTo(parameters);
 
-            if (parameters.ContainsKey("PlaceId"))
+            if (parameters.ContainsKey("Place"))
             {
-                PlaceId = parameters.GetValues<string>("PlaceId").First();
+                Place = parameters.GetValues<BasePlace>("Place").First();
+
+                Position = Place.Position;
+                Name = Place.PlaceName ?? "";
+                Description = Place.Address ?? "";
             }
         }
 
-        public AddEditPinViewModel(INavigationService navigationService) : base(navigationService)
+        public AddEditPinViewModel(INavigationService navigationService, IRepository repository) : base(navigationService)
         {
+            this.repository = repository;
             Map.MapClicked += OnMapClick;
         }
 

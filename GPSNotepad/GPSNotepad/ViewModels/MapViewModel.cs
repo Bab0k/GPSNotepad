@@ -1,12 +1,8 @@
 ﻿using GPSNotepad.Model.Tables;
 using GPSNotepad.Repository;
 using Prism.Commands;
-using Prism.Mvvm;
 using Prism.Navigation;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using Xamarin.Forms.Maps;
 
 namespace GPSNotepad.ViewModels
@@ -21,6 +17,12 @@ namespace GPSNotepad.ViewModels
             get => pins; 
             set => SetProperty(ref pins, value); 
         }
+        MapSpan mapSpan = new MapSpan(new Xamarin.Forms.Maps.Position(10,10),1,1);
+        public MapSpan MapSpan
+        {
+            get => mapSpan;
+            set => SetProperty(ref mapSpan, value);
+        }
 
         public MapViewModel(INavigationService navigationService) : base(navigationService)
         {
@@ -33,6 +35,15 @@ namespace GPSNotepad.ViewModels
         private void UpdateMapCommand()
         {
             Pins = repository.GetPlaces();
+        }
+        public override void OnNavigatedTo(INavigationParameters parameters)
+        {
+            base.OnNavigatedTo(parameters);
+
+            if (parameters.ContainsKey("SelectedPlace"))
+            {   
+
+            }
         }
     }
 }

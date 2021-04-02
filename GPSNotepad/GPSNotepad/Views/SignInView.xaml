@@ -5,15 +5,10 @@
              prism:ViewModelLocator.AutowireViewModel="True"
              x:Class="GPSNotepad.Views.SignInView">
 
-
     <StackLayout>
         <Entry Placeholder="Mail"></Entry>
         <Entry Placeholder="Password"></Entry>
         <Button Text="SignIn"></Button>
     </StackLayout>
-    
-    
-    
-    
     
 </ContentPage>
