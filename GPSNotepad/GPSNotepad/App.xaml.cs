@@ -21,6 +21,7 @@ namespace GPSNotepad
             InitializeComponent();
 
             Realms.RealmConfiguration realmConfiguration = new Realms.RealmConfiguration();
+            realmConfiguration.SchemaVersion = 3;
             Realms.RealmConfiguration.DefaultConfiguration = realmConfiguration;
 
             Realms.Realm realm = Realms.Realm.GetInstance();

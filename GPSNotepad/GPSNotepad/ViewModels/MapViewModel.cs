@@ -1,13 +1,16 @@
-﻿using GPSNotepad.Model.Tables;
+﻿using GPSNotepad.Model.Interface;
+using GPSNotepad.Model.Tables;
 using GPSNotepad.Repository;
 using Prism.Commands;
 using Prism.Navigation;
+using System;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 using Xamarin.Forms.Maps;
 
 namespace GPSNotepad.ViewModels
 {
-    public class MapViewModel : ViewModelBase
+    public class MapViewModel : ViewModelBase, IViewActionsHandler
     {
         IRepository repository = new RealmRepository();
 
@@ -29,21 +32,38 @@ namespace GPSNotepad.ViewModels
             Pins = repository.GetPlaces();
         }
 
-        public DelegateCommand OnUpdateMap =>
-          new DelegateCommand(UpdateMapCommand);
+        public DelegateCommand OnUpdateMap => new DelegateCommand(UpdateMapCommand);
 
         private void UpdateMapCommand()
         {
             Pins = repository.GetPlaces();
         }
+
+        public ICommand OnMoveToRegionCommand = new DelegateCommand<object>(MoveToRegionCommand);
+
+        private static void MoveToRegionCommand(object obj)
+        {
+            Console.WriteLine();
+        }
+
         public override void OnNavigatedTo(INavigationParameters parameters)
         {
             base.OnNavigatedTo(parameters);
 
-            if (parameters.ContainsKey("SelectedPlace"))
-            {   
-
+            if (parameters.TryGetValue<BasePlace>("SelectedPlace", out var SelectedPlace))
+            {
+                Random rand = new Random();
+                MapSpan = new MapSpan(SelectedPlace.Position, 1 + rand.NextDouble()/100, 1 + rand.NextDouble()/100);
             }
+        }
+
+        public void OnAppearing()
+        {
+            OnUpdateMap.Execute();
+        }
+
+        public void OnDisappearing()
+        {
         }
     }
 }

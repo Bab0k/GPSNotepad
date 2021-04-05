@@ -2,15 +2,8 @@
 
 namespace GPSNotepad.Views
 {
-    public partial class MapView : ContentPage
+    public partial class MapView : BaseContentPage
     {
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-
-            (BindingContext as ViewModels.MapViewModel).OnUpdateMap.Execute();
-        }
-
         public MapView()
         {
             InitializeComponent();

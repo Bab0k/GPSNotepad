@@ -2,7 +2,7 @@
 
 namespace GPSNotepad.Views
 {
-    public partial class AddEditPinView : ContentPage
+    public partial class AddEditPinView : BaseContentPage
     {
         public AddEditPinView()
         {

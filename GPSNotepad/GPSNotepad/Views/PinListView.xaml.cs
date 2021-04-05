@@ -2,7 +2,7 @@
 
 namespace GPSNotepad.Views
 {
-    public partial class PinListView : ContentPage
+    public partial class PinListView : BaseContentPage
     {
         public PinListView()
         {

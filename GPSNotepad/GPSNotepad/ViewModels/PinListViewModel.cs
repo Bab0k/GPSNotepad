@@ -7,6 +7,8 @@ using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Prism.Navigation.TabbedPages;
+using System.Runtime.CompilerServices;
+using System.ComponentModel;
 
 namespace GPSNotepad.ViewModels
 {
@@ -40,15 +42,21 @@ namespace GPSNotepad.ViewModels
         public ICommand OnEditCommand => new DelegateCommand<BasePlace>(EditCommand);
 
         public ICommand OnDeleteCommand => new DelegateCommand<BasePlace>(DeleteCommand);
-        public ICommand OnChangeTabCommand => new DelegateCommand<BasePlace>(ChangeTabCommand);
+        public ICommand OnChangeTabCommand => new DelegateCommand<Object>(ChangeTabCommand);
 
-        private void ChangeTabCommand(BasePlace obj)
+        private void ChangeTabCommand(Object obj)
         {
             var Params = new NavigationParameters();
 
-            Params.Add("SelectedPlace", obj);
+            Params.Add("SelectedPlace", (obj as PinListViewModel).SelectedItem);
 
             NavigationService.SelectTabAsync($"{nameof(MapView)}", Params);
+        }
+
+        public ICommand OnCheckedChangeCommand = new DelegateCommand(CheckedChangeCommand);
+        private static void CheckedChangeCommand()
+        {
+            Console.WriteLine();   
         }
 
         private void DeleteCommand(BasePlace e)
@@ -77,6 +85,19 @@ namespace GPSNotepad.ViewModels
             var place = new BasePlace();
             repository.AddPlace(place);
             return place;
+        }
+
+        protected override void OnPropertyChanged(PropertyChangedEventArgs args)
+        {
+            base.OnPropertyChanged(args);
+
+            if (args.PropertyName == nameof(Pins))
+            {
+                foreach (var item in Pins)
+                {
+                    repository.EditPlace(item);
+                }
+            }
         }
 
         private async void NavigationToAddEditPinViewCommand()

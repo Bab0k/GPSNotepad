@@ -12,6 +12,7 @@ namespace GPSNotepad.Model.Tables
         public string PlaceName { get; set; }
         public string Address { get; set; }
         public string Icon { get; set; }
+        public bool Favorite { get; set; } = false;
         public Position Position { get; set; }
 
         public IEnumerator GetEnumerator()

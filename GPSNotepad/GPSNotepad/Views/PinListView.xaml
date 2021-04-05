@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<views:BaseContentPage  xmlns:views="clr-namespace:GPSNotepad.Views"
+                        xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:prism="http://prismlibrary.com"
-             prism:ViewModelLocator.AutowireViewModel="True"
+             xmlns:prism="http://prismlibrary.com" xmlns:Controls="clr-namespace:GPSNotepad.Controls"
+                        prism:ViewModelLocator.AutowireViewModel="True"
              x:Class="GPSNotepad.Views.PinListView"
              x:Name="pinListView">
 
@@ -13,7 +14,12 @@
                 <ListView ItemsSource="{Binding Pins}" 
                           x:Name="MyListView"
                           SelectedItem="{Binding SelectedItem}">
-                    
+
+                    <ListView.Behaviors>
+                        <prism:EventToCommandBehavior EventName="ItemTapped"
+                                          Command="{Binding OnChangeTabCommand}"
+                                          CommandParameter="{Binding .}" />
+                    </ListView.Behaviors>
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
@@ -27,10 +33,14 @@
                                         CommandParameter="{Binding .}"
                                         Text="Delete" />
                                 </ViewCell.ContextActions>
-
-                                <StackLayout>
-                                    <Label Text="{Binding PlaceName}"/>
-                                </StackLayout>
+                                <Grid>
+                                    <Label Text="{Binding PlaceName}" 
+                                           VerticalOptions="CenterAndExpand"
+                                           HorizontalOptions="CenterAndExpand"/>
+                                    <CheckBox 
+                                        IsChecked="{Binding Favorite}"
+                                        Grid.Column="5"/>
+                                </Grid>
                             </ViewCell>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -45,4 +55,4 @@
     </AbsoluteLayout>
 
 
-</ContentPage>
+</views:BaseContentPage>

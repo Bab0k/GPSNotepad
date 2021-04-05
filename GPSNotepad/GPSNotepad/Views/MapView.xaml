@@ -1,34 +1,33 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<views:BaseContentPage  xmlns:views="clr-namespace:GPSNotepad.Views" 
+                        xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:prism="http://prismlibrary.com"
-             xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps" 
-             xmlns:controls="clr-namespace:GPSNotepad.Controls"
-             prism:ViewModelLocator.AutowireViewModel="True"
+             xmlns:controls="clr-namespace:GPSNotepad.Controls" 
+                        xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
+                        prism:ViewModelLocator.AutowireViewModel="True"
              x:Class="GPSNotepad.Views.MapView">
 
-    <AbsoluteLayout >
-
-        <controls:CustomMap MapType="Street" HasZoomEnabled="True" 
+        <AbsoluteLayout >
+            <controls:CustomMap MapType="Street" HasZoomEnabled="True" 
                   AbsoluteLayout.LayoutBounds="1,1,1,1"
                   AbsoluteLayout.LayoutFlags="All"
-                  ItemsSource="{Binding Pins}">
+                  ItemsSource="{Binding Pins}"
+                  MapSpan="{Binding MapSpan}"
+                                >
             <controls:CustomMap.ItemTemplate>
-                <DataTemplate>
-                    <maps:Pin Position="{Binding Position}"
+                  <DataTemplate>
+                        <maps:Pin Position="{Binding Position}"
                             Label="{Binding PlaceName}" />
-                </DataTemplate>
+                  </DataTemplate>
             </controls:CustomMap.ItemTemplate>
-        </controls:CustomMap>
-
-        <StackLayout  
+            </controls:CustomMap>
+            <StackLayout  
             AbsoluteLayout.LayoutBounds=".5,.02,.6,.1"
             AbsoluteLayout.LayoutFlags="All">
-            <Frame CornerRadius="100" BackgroundColor="White">
-                <Entry Placeholder="Entry keyworlds" TextColor="Black" VerticalOptions="Center"  HeightRequest="40"  />
-            </Frame>
-            
-        </StackLayout>
-    </AbsoluteLayout>
-
-</ContentPage>
+                <Frame CornerRadius="100" BackgroundColor="White">
+                    <Entry Placeholder="Entry keyworlds" TextColor="Black" VerticalOptions="Center"  HeightRequest="40"  />
+                </Frame>
+            </StackLayout>
+        </AbsoluteLayout>
+</views:BaseContentPage>
