@@ -1,4 +1,9 @@
+using GPSNotepad.Model.Servises;
 using GPSNotepad.Repository;
+using GPSNotepad.Services.PlaceService;
+using GPSNotepad.Servises.AuthorizeService;
+using GPSNotepad.Servises.PlaceService;
+using GPSNotepad.Servises.UserService;
 using GPSNotepad.ViewModels;
 using GPSNotepad.Views;
 using Prism;
@@ -21,21 +26,20 @@ namespace GPSNotepad
             InitializeComponent();
 
             Realms.RealmConfiguration realmConfiguration = new Realms.RealmConfiguration();
-            realmConfiguration.SchemaVersion = 3;
+            realmConfiguration.SchemaVersion = 4;
             Realms.RealmConfiguration.DefaultConfiguration = realmConfiguration;
 
-            Realms.Realm realm = Realms.Realm.GetInstance();
+            IAuthorizeService authorizeService = Container.Resolve<AuthorizeService>();
 
-            Realms.Transaction transaction = realm.BeginWrite();
+            if (authorizeService.IsAuthorize())
+            {
+                await NavigationService.NavigateAsync($"/{nameof(MainPageView)}");
+            }
+            else
+            {
+                await NavigationService.NavigateAsync($"{nameof(NavigationPage)}/{nameof(SignInView)}");
+            }
 
-            realm.RemoveAll();
-
-            transaction.Commit();
-            transaction.Dispose();
-
-
-
-            await NavigationService.NavigateAsync($"/{nameof(MainPageView)}");
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -47,9 +51,13 @@ namespace GPSNotepad
             containerRegistry.RegisterForNavigation<SignUpView, SignUpViewModel>();
             containerRegistry.RegisterForNavigation<MapView, MapViewModel>();
             containerRegistry.RegisterForNavigation<PinListView, PinListViewModel>();
+            containerRegistry.RegisterForNavigation<SignInView, SignInViewModel>();
             containerRegistry.RegisterForNavigation<AddEditPinView, AddEditPinViewModel>();
 
-            containerRegistry.RegisterSingleton<IRepository, RealmRepository>();
+            containerRegistry.RegisterSingleton<IRepository, Servises.Repository.Repository>();
+            containerRegistry.RegisterSingleton<IPlaceService, PlaceService>();
+            containerRegistry.RegisterSingleton<IUserService, UserService>();
+            containerRegistry.RegisterSingleton<IAuthorizeService, AuthorizeService>();
         }
     }
 }

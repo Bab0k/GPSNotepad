@@ -6,7 +6,8 @@
              xmlns:controls="clr-namespace:GPSNotepad.Controls" 
                         xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
                         prism:ViewModelLocator.AutowireViewModel="True"
-             x:Class="GPSNotepad.Views.MapView">
+             x:Class="GPSNotepad.Views.MapView"
+                        x:Name="mapView">
 
         <AbsoluteLayout >
             <controls:CustomMap MapType="Street" HasZoomEnabled="True" 
@@ -14,11 +15,13 @@
                   AbsoluteLayout.LayoutFlags="All"
                   ItemsSource="{Binding Pins}"
                   MapSpan="{Binding MapSpan}"
+                  MapClickedCommand="{Binding OnMapClickedCommand}"
                                 >
             <controls:CustomMap.ItemTemplate>
                   <DataTemplate>
-                        <maps:Pin Position="{Binding Position}"
-                            Label="{Binding PlaceName}" />
+                        <controls:MyCustomPin Position="{Binding Position}"
+                            Label="{Binding PlaceName}"
+                            MarkClickCommand="{Binding BindingContext.OnMarkClickedCommand, Source={x:Reference Name=mapView}}"/>
                   </DataTemplate>
             </controls:CustomMap.ItemTemplate>
             </controls:CustomMap>
@@ -29,5 +32,24 @@
                     <Entry Placeholder="Entry keyworlds" TextColor="Black" VerticalOptions="Center"  HeightRequest="40"  />
                 </Frame>
             </StackLayout>
+        <Frame AbsoluteLayout.LayoutFlags="All"
+               AbsoluteLayout.LayoutBounds="0.5,.95,.9,.2"
+               BackgroundColor="White"
+               CornerRadius="20"
+               IsVisible="{Binding PinClicked}">
+            <Grid>
+                <Label Text= "{Binding MarkName, StringFormat='Name: {0}'}"
+                       VerticalOptions="CenterAndExpand"/>
+                <Label Text= "{Binding MarkDescription, StringFormat='Descroption: {0}'}"
+                       VerticalOptions="CenterAndExpand"
+                       Grid.Column="1"/>
+                <Label Text= "{Binding MarkLatitude, StringFormat='Latitude: {0}'}"
+                       VerticalOptions="CenterAndExpand"
+                       Grid.Row="1"/>
+                <Label Text= "{Binding MarkLongitude, StringFormat='Longitude: {0}'}"
+                       VerticalOptions="CenterAndExpand"
+                       Grid.Column="1" Grid.Row="1"/>
+            </Grid>
+        </Frame>
         </AbsoluteLayout>
 </views:BaseContentPage>

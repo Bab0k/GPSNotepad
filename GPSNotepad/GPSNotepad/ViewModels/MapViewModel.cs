@@ -1,69 +1,111 @@
-﻿using GPSNotepad.Model.Interface;
+﻿using GPSNotepad.Controls;
+using GPSNotepad.Model.Interface;
 using GPSNotepad.Model.Tables;
 using GPSNotepad.Repository;
+using GPSNotepad.Servises.PlaceService;
 using Prism.Commands;
 using Prism.Navigation;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
 namespace GPSNotepad.ViewModels
 {
     public class MapViewModel : ViewModelBase, IViewActionsHandler
     {
-        IRepository repository = new RealmRepository();
+        IPlaceService PlaceService;
 
-        ObservableCollection<BasePlace> pins = new ObservableCollection<BasePlace>();
-        public ObservableCollection<BasePlace> Pins 
+        ObservableCollection<PlaceViewModel> pins = new ObservableCollection<PlaceViewModel>();
+        public ObservableCollection<PlaceViewModel> Pins 
         {
             get => pins; 
             set => SetProperty(ref pins, value); 
         }
-        MapSpan mapSpan = new MapSpan(new Xamarin.Forms.Maps.Position(10,10),1,1);
+        MapSpan mapSpan;
         public MapSpan MapSpan
         {
             get => mapSpan;
             set => SetProperty(ref mapSpan, value);
         }
 
-        public MapViewModel(INavigationService navigationService) : base(navigationService)
+        bool pinClicked;
+        public bool PinClicked
         {
-            Pins = repository.GetPlaces();
+            get => pinClicked;
+            set => SetProperty(ref pinClicked, value);
         }
 
-        public DelegateCommand OnUpdateMap => new DelegateCommand(UpdateMapCommand);
-
-        private void UpdateMapCommand()
+        string markDescription;
+        public string MarkDescription
         {
-            Pins = repository.GetPlaces();
+            get => markDescription;
+            set => SetProperty(ref markDescription, value);
+        }
+        string markName;
+        public string MarkName
+        {
+            get => markName;
+            set => SetProperty(ref markName, value);
+        }
+        string markLongitude;
+        public string MarkLongitude
+        {
+            get => markLongitude;
+            set => SetProperty(ref markLongitude, value);
+        }
+        string markLatitude;
+        public string MarkLatitude
+        {
+            get => markLatitude;
+            set => SetProperty(ref markLatitude, value);
         }
 
-        public ICommand OnMoveToRegionCommand = new DelegateCommand<object>(MoveToRegionCommand);
 
-        private static void MoveToRegionCommand(object obj)
+
+        public MapViewModel(INavigationService navigationService, IPlaceService PlaceService) : base(navigationService)
         {
-            Console.WriteLine();
+            this.PlaceService = PlaceService;
+        }
+
+        public DelegateCommand OnUpdateMap => new DelegateCommand(OnUpdateMapCommand);
+
+        private void OnUpdateMapCommand()
+        {
+            Pins = PlaceService.GetUserPlaces();
+        }
+        public ICommand OnMarkClickedCommand => new Command<MyCustomPin>(MarkClickedCommand);
+
+        private void MarkClickedCommand(MyCustomPin obj)
+        {
+            PinClicked = true;
+            MarkDescription = obj.Address;
+            MarkName = obj.Label;
+            MarkLatitude = obj.Position.Latitude.ToString();
+            MarkLongitude = obj.Position.Longitude.ToString();
+        }
+        public ICommand OnMapClickedCommand => new Command<object>(MapClickedCommand);
+
+        private void MapClickedCommand(object obj)
+        {
+            PinClicked = false;
         }
 
         public override void OnNavigatedTo(INavigationParameters parameters)
         {
             base.OnNavigatedTo(parameters);
-
-            if (parameters.TryGetValue<BasePlace>("SelectedPlace", out var SelectedPlace))
+            PlaceViewModel SelectedPlace;
+            if (parameters.TryGetValue(nameof(SelectedPlace), out SelectedPlace))
             {
                 Random rand = new Random();
                 MapSpan = new MapSpan(SelectedPlace.Position, 1 + rand.NextDouble()/100, 1 + rand.NextDouble()/100);
             }
         }
 
-        public void OnAppearing()
+        public override void OnAppearing()
         {
-            OnUpdateMap.Execute();
-        }
-
-        public void OnDisappearing()
-        {
+            OnUpdateMap?.Execute();
         }
     }
 }

@@ -7,14 +7,25 @@
              x:Class="GPSNotepad.Views.SignUpView">
 
 
-
     <StackLayout>
-
-        <Entry Placeholder="Name"></Entry>
-        <Entry Placeholder="Mail"></Entry>
-        <Entry Placeholder="Password"></Entry>
-        <Entry Placeholder="ConfirmPassword"></Entry>
-        <Button Text="SignUp"></Button>
-        
+        <Entry Placeholder="Name" Text="{Binding Name}"
+               VerticalOptions="EndAndExpand" 
+               WidthRequest="250"
+               HorizontalOptions="CenterAndExpand"/>
+        <Entry Placeholder="Mail" 
+               Text="{Binding Mail}"
+               WidthRequest="250"
+               HorizontalOptions="CenterAndExpand"/>
+        <Entry Placeholder="Password" 
+               IsPassword="true"
+               Text="{Binding Password}"
+               VerticalOptions="StartAndExpand" 
+               WidthRequest="250"
+               HorizontalOptions="CenterAndExpand" />
+        <Button Text="SIGN UP"
+                Command="{Binding OnSignUpCommand}"
+                HorizontalOptions="CenterAndExpand"
+                WidthRequest="250"
+                VerticalOptions="StartAndExpand"/>
     </StackLayout>
 </views:BaseContentPage>

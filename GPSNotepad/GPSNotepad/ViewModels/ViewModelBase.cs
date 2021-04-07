@@ -1,9 +1,10 @@
-﻿using Prism.Mvvm;
+﻿using GPSNotepad.Model.Interface;
+using Prism.Mvvm;
 using Prism.Navigation;
 
 namespace GPSNotepad.ViewModels
 {
-    public class ViewModelBase : BindableBase, INavigatedAware 
+    public class ViewModelBase : BindableBase, INavigatedAware, IViewActionsHandler
     {
         protected INavigationService NavigationService { get; private set; }
 
@@ -29,5 +30,12 @@ namespace GPSNotepad.ViewModels
 
         }
 
+        public virtual void OnAppearing()
+        {
+        }
+
+        public virtual void OnDisappearing()
+        {
+        }
     }
 }

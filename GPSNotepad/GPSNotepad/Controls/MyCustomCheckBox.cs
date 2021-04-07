@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows.Input;
 using Xamarin.Forms;
 
 namespace GPSNotepad.Controls
 {
-    public class MyCustomCheckBox: Frame
+    public class MyCustomCheckBox: CheckBox
     {
         public bool IsFavorite
         {
@@ -13,25 +14,35 @@ namespace GPSNotepad.Controls
             set { SetValue(IsFavotiteProperty, value); }
         }
 
-        public static readonly BindableProperty IsFavotiteProperty = BindableProperty.Create(
-                                                         propertyName: "IsFavorite",
-                                                         returnType: typeof(bool),
-                                                         declaringType: typeof(MyCustomCheckBox),
-                                                         defaultValue: false,
-                                                         defaultBindingMode: BindingMode.TwoWay,
-                                                         propertyChanged: IsFavoritePropertyChanged);
+        public static readonly BindableProperty IsFavotiteProperty = 
+            BindableProperty.Create(
+                   propertyName: "IsFavorite",
+                   returnType: typeof(bool),
+                   declaringType: typeof(MyCustomCheckBox),
+                   defaultValue: false,
+                   defaultBindingMode: BindingMode.TwoWay);
 
-        private static void IsFavoritePropertyChanged(BindableObject bindable, object oldValue, object newValue)
+        public static readonly BindableProperty CheckedChangeCommandProperty =
+            BindableProperty.Create(
+                  propertyName: nameof(CheckedChangeCommand),
+                  returnType: typeof(ICommand),
+                  declaringType: typeof(CustomMap),
+                  defaultValue: default(ICommand));
+
+        public ICommand CheckedChangeCommand
         {
-            var thisInstance = bindable as MyCustomCheckBox;
-            var newMapSpan = newValue;
+            get { return (ICommand)GetValue(CheckedChangeCommandProperty); }
+            set { SetValue(CheckedChangeCommandProperty, value); }
+        }
 
-            Image image = new Image();
+        public MyCustomCheckBox():base()
+        {
+            CheckedChanged += MyCustomCheckBox_CheckedChanged;
+        }
 
-            image.Source = (bool)newValue ? "Ok.png":"";
-
-            thisInstance.Content = image;
-
+        private void MyCustomCheckBox_CheckedChanged(object sender, CheckedChangedEventArgs e)
+        {
+            CheckedChangeCommand?.Execute(sender);
         }
     }
 }

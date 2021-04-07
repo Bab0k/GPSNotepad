@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Text;
+using System.Windows.Input;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
@@ -14,6 +15,13 @@ namespace GPSNotepad.Controls
         {
             PinsSource = new ObservableCollection<Pin>();
             PinsSource.CollectionChanged += PinsSourceOnCollectionChanged;
+            MapClicked += CustomMap_MapClicked;
+            
+        }
+        
+        private void CustomMap_MapClicked(object sender, MapClickedEventArgs e)
+        {
+            MapClickedCommand?.Execute(e);
         }
 
         public ObservableCollection<Pin> PinsSource
@@ -31,7 +39,6 @@ namespace GPSNotepad.Controls
                                                          validateValue: null,
                                                          propertyChanged: PinsSourcePropertyChanged);
 
-
         public MapSpan MapSpan
         {
             get { return (MapSpan)GetValue(MapSpanProperty); }
@@ -47,6 +54,7 @@ namespace GPSNotepad.Controls
                                                          validateValue: null,
                                                          propertyChanged: MapSpanPropertyChanged);
 
+
         private static void MapSpanPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var thisInstance = bindable as CustomMap;
@@ -54,10 +62,11 @@ namespace GPSNotepad.Controls
 
             thisInstance?.MoveToRegion(newMapSpan);
         }
+
         private static void PinsSourcePropertyChanged(BindableObject bindable, object oldvalue, object newValue)
         {
             var thisInstance = bindable as CustomMap;
-            var newPinsSource = newValue as ObservableCollection<Pin>;
+            var newPinsSource = newValue as ObservableCollection<MyCustomPin>;
 
             if (thisInstance == null ||
                 newPinsSource == null)
@@ -67,15 +76,27 @@ namespace GPSNotepad.Controls
         }
         private void PinsSourceOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            UpdatePinsSource(this, sender as IEnumerable<Pin>);
+            UpdatePinsSource(this, sender as IEnumerable<MyCustomPin>);
         }
 
-        private static void UpdatePinsSource(Map bindableMap, IEnumerable<Pin> newSource)
+        private static void UpdatePinsSource(Map bindableMap, IEnumerable<MyCustomPin> newSource)
         {
             bindableMap.Pins.Clear();
             foreach (var pin in newSource)
                 bindableMap.Pins.Add(pin);
         }
 
+        public static readonly BindableProperty MapClickedCommandProperty =
+            BindableProperty.Create(
+                propertyName: nameof(MapClickedCommand),
+                returnType: typeof(ICommand),
+                declaringType: typeof(CustomMap),
+                defaultValue: default(ICommand));
+        
+        public ICommand MapClickedCommand
+        {
+            get { return (ICommand)GetValue(MapClickedCommandProperty); }
+            set { SetValue(MapClickedCommandProperty, value); }
+        }
     }
 }

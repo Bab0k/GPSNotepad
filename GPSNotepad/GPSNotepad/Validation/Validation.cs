@@ -7,25 +7,20 @@ namespace GPSNotepad.Validation
 {
     public static class Validation
     {
-        private static readonly string uppercase = @"\w*[A-Z]+\w";
-        private static readonly string lovercase = @"\w*[a-z]+\w*";
-        private static readonly string number = @"\w*[0-9]+\w*";
-        private static readonly string loginlen = @"^\w{4,16}";
-        private static readonly string Passwordlen = @"^\w{6,16}";
-        public static readonly string start = @"^[a-zA-Z]+\w*";
-
-        public static bool IsLogin(string text)
+        public static bool IsName(string text)
         {
-            return IsValidation(text, loginlen)
-                && IsValidation(text, start);
+            return IsValidation(text, Constants.Namelen)
+                && IsValidation(text, Constants.Start);
+        }
+        public static bool IsMail(string text)
+        {
+            return IsValidation(text, Constants.Maillen) 
+                && IsValidation(text, Constants.Mail);
         }
         public static bool IsPassword(string text)
         {
-            return IsValidation(text, uppercase)
-                && IsValidation(text, lovercase)
-                && IsValidation(text, number)
-                && IsValidation(text, Passwordlen)
-                && IsValidation(text, start);
+            return IsValidation(text, Constants.Passwordlen)
+                && IsValidation(text, Constants.Start);
         }
 
         public static bool IsValidation(string text, string pattern)

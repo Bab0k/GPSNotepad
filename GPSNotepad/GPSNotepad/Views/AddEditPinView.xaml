@@ -2,27 +2,38 @@
 <Views:BaseContentPage  xmlns:Views="clr-namespace:GPSNotepad.Views"
                         xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:GPSNotepad.Controls" 
              xmlns:prism="http://prismlibrary.com" xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
              prism:ViewModelLocator.AutowireViewModel="True"
              x:Class="GPSNotepad.Views.AddEditPinView">
 
-        <Grid AbsoluteLayout.LayoutBounds="1,1,1,1" AbsoluteLayout.LayoutFlags="All">
+    <Grid AbsoluteLayout.LayoutBounds="1,1,1,1" AbsoluteLayout.LayoutFlags="All">
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="6*"/>
-            </Grid.RowDefinitions>
+        <Grid.RowDefinitions>
+             <RowDefinition Height="*"/>
+             <RowDefinition Height="*"/>
+             <RowDefinition Height="*"/>
+             <RowDefinition Height="6*"/>
+        </Grid.RowDefinitions>
 
-            <Entry Placeholder="Name" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding Name}"/>
-            <Entry Placeholder="Description" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Description}" />
-            <Entry Placeholder="Latitude" Grid.Column="0" Grid.Row="2" Text="{Binding Latitude} "/>
-            <Entry Placeholder="Longitude" Grid.Column="1" Grid.Row="2" Text="{Binding Longitude}"/>
-            <ContentView Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Content="{Binding Map}"/>
-
-
-
+        <Entry Placeholder="Name" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding Name}"/>
+        <Entry Placeholder="Description" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Description}" />
+        <Entry Placeholder="Latitude" Grid.Column="0" Grid.Row="2" Text="{Binding Latitude} "/>
+        <Entry Placeholder="Longitude" Grid.Column="1" Grid.Row="2" Text="{Binding Longitude}"/>
+        <controls:CustomMap
+            Grid.Row="3"
+            Grid.ColumnSpan="2"
+            ItemsSource="{Binding Pin}"
+            MapSpan="{Binding MapSpan}"
+            MapClickedCommand="{Binding OnMapClickCommand}">
+            <controls:CustomMap.ItemTemplate>
+                <DataTemplate>
+                    <maps:Pin Position="{Binding Position}"
+                              Label="{Binding Name}" 
+                              Address="{Binding Description}"/>
+                </DataTemplate>
+            </controls:CustomMap.ItemTemplate>
+        </controls:CustomMap>
     </Grid>
 
     

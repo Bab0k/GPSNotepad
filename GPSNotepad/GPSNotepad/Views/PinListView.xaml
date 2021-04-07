@@ -37,9 +37,10 @@
                                     <Label Text="{Binding PlaceName}" 
                                            VerticalOptions="CenterAndExpand"
                                            HorizontalOptions="CenterAndExpand"/>
-                                    <CheckBox 
+                                    <Controls:MyCustomCheckBox 
                                         IsChecked="{Binding Favorite}"
-                                        Grid.Column="5"/>
+                                        Grid.Column="5"
+                                        CheckedChangeCommand="{Binding BindingContext.OnCheckedChangeCommand, Source={x:Reference Name=pinListView}}"/>
                                 </Grid>
                             </ViewCell>
                         </DataTemplate>

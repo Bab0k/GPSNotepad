@@ -1,39 +1,47 @@
 ﻿using GPSNotepad.Model.Tables;
 using GPSNotepad.Repository;
+using GPSNotepad.Servises.PlaceService;
 using Prism.Navigation;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Input;
+using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
 namespace GPSNotepad.ViewModels
 {
     public class AddEditPinViewModel : ViewModelBase, INavigationAware
     {
-        IRepository repository;
+        IPlaceService PlaceService;
 
-        private BasePlace Place;
-        private string name = "";
+        private PlaceViewModel _place;
+        private string name;
         public string Name
         {
             get => name;
             set => SetProperty(ref name, value);
         }
-        private string description = "";
+        private string description;
         public string Description
         {
             get => description;
             set => SetProperty(ref description, value);
         }
+        private MapSpan mapSpan;
+        public MapSpan MapSpan
+        {
+            get => mapSpan;
+            set => SetProperty(ref mapSpan, value);
+        }
 
-        double lantitude;
+
+        private double lantitude;
         public string Latitude
         {
             get => lantitude.ToString();
             set
             {
-                double lant;
-
-                if (double.TryParse(value, out lant))
+                if (double.TryParse(value, out var lant))
                 {
                     SetProperty(ref lantitude, lant);
                     Position = new Xamarin.Forms.Maps.Position(lantitude, position.Longitude);
@@ -47,9 +55,7 @@ namespace GPSNotepad.ViewModels
             get => longitude.ToString();
             set
             {
-                double lng;
-
-                if (double.TryParse(value, out lng))
+                if (double.TryParse(value, out var lng))
                 {
                     SetProperty(ref longitude, lng);
                     Position = new Xamarin.Forms.Maps.Position(Position.Latitude, longitude);
@@ -69,18 +75,16 @@ namespace GPSNotepad.ViewModels
                 SetProperty(ref position, value);
             }
         }
-        Map map = new Map();
-        public Map Map
-        {
-            get => map;
-            set => SetProperty(ref map, value);
-        }
 
+        public AddEditPinViewModel(INavigationService navigationService, IPlaceService PlaceService) : base(navigationService)
+        {
+            this.PlaceService = PlaceService;
+        }
         protected override void OnPropertyChanged(PropertyChangedEventArgs args)
         {
             base.OnPropertyChanged(args);
 
-            if (args.PropertyName == "Latitude")
+            if (args.PropertyName == nameof(Latitude))
             {
                 double lant;
 
@@ -96,7 +100,7 @@ namespace GPSNotepad.ViewModels
                     }
                 }
             }
-            if (args.PropertyName == "Longitude")
+            if (args.PropertyName == nameof(Latitude))
             {
                 double lng;
 
@@ -113,9 +117,7 @@ namespace GPSNotepad.ViewModels
                 }
             }
 
-
-
-            if (args.PropertyName == "Position" || args.PropertyName == "Description")
+            if (args.PropertyName == nameof(Position) || args.PropertyName == nameof(Description))
             {
                 Pin pin = new Pin()
                 {
@@ -124,23 +126,18 @@ namespace GPSNotepad.ViewModels
 
                 };
 
-                map.Pins.Clear();
-                map.Pins.Add(pin);
-
-                map.MoveToRegion(new MapSpan(Position, 1, 1));
-
+                MapSpan = new MapSpan(Position, 1, 1);
             }
-
         }
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
             base.OnNavigatedFrom(parameters);
 
-            Place.PlaceName = Name;
-            Place.Address = Description;
-            Place.Position = Position;
+            _place.PlaceName = Name;
+            _place.Address = Description;
+            _place.Position = Position;
 
-            repository.EditPlace(Place);
+            PlaceService.EditPlace(_place);
 
         }
 
@@ -148,23 +145,23 @@ namespace GPSNotepad.ViewModels
         {
             base.OnNavigatedTo(parameters);
 
-            if (parameters.ContainsKey("Place"))
+            if (parameters.TryGetValue(nameof(_place), out _place))
             {
-                Place = parameters.GetValues<BasePlace>("Place").First();
-
-                Position = Place.Position;
-                Name = Place.PlaceName ?? "";
-                Description = Place.Address ?? "";
+                Latitude = _place.Position.Latitude.ToString();
+                Longitude = _place.Position.Longitude.ToString();
+                Name = _place.PlaceName;
+                Description = _place.Address;
+            }
+            else
+            {
+                _place = new PlaceViewModel();
             }
         }
 
-        public AddEditPinViewModel(INavigationService navigationService, IRepository repository) : base(navigationService)
-        {
-            this.repository = repository;
-            Map.MapClicked += OnMapClick;
-        }
 
-        private void OnMapClick(object sender, MapClickedEventArgs e)
+        public ICommand OnMapClickCommand => new Command<MapClickedEventArgs>(OnMapClick);
+
+        private void OnMapClick(MapClickedEventArgs e)
         {
             Longitude = e.Position.Longitude.ToString();
             Latitude = e.Position.Latitude.ToString();

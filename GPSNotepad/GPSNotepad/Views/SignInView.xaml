@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<views:BaseContentPage  xmlns:views="clr-namespace:GPSNotepad.Views"
+                        xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:prism="http://prismlibrary.com"
+             prism:ViewModelLocator.AutowireViewModel="True"
+             x:Class="GPSNotepad.Views.SignInView">
+
+    <ContentPage.Content>
+        <StackLayout>
+            <Entry Placeholder="Mail"  Text="{Binding Mail}" 
+                   VerticalOptions="EndAndExpand" WidthRequest="250"
+                   HorizontalOptions="CenterAndExpand" />
+            <Entry Placeholder="Password" 
+                   IsPassword="true" 
+                   Text="{Binding Password}" 
+                   VerticalOptions="StartAndExpand" 
+                   WidthRequest="250"
+                   HorizontalOptions="CenterAndExpand" />
+            <Button Text="SIGN IN"  
+                    Command="{Binding OnSignInCommand}"
+                    HorizontalOptions="CenterAndExpand"
+                    WidthRequest="250"
+                    VerticalOptions="EndAndExpand"/>
+            <Label HorizontalOptions="CenterAndExpand"
+                   VerticalOptions="StartAndExpand"
+                   LineBreakMode="WordWrap">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span 
+                            Text="SIGN UP" 
+                            TextColor="Blue"
+                            TextDecorations="Underline" >
+                            <Span.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OnSignUpViewNavigatioCommand}" />
+                            </Span.GestureRecognizers>
+                        </Span>
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+        </StackLayout>
+    </ContentPage.Content>
+
+</views:BaseContentPage>
