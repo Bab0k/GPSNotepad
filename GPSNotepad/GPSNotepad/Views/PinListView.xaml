@@ -11,6 +11,19 @@
     <AbsoluteLayout>
         <ScrollView>
             <StackLayout>
+                <SearchBar 
+                    Placeholder="Entry keyworlds"
+                    TextColor="Black"
+                    Text="{Binding SearchBarText}"
+                    >
+                    <SearchBar.Behaviors>
+                        <prism:EventToCommandBehavior
+                            EventName="TextChanged"
+                            Command="{Binding OnSearchBarTypingCommand}"
+                            CommandParameter="MyParameter"  />
+
+                    </SearchBar.Behaviors>
+                </SearchBar>
                 <ListView ItemsSource="{Binding Pins}" 
                           x:Name="MyListView"
                           SelectedItem="{Binding SelectedItem}">

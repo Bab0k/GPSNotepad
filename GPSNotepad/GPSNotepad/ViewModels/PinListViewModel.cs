@@ -11,13 +11,15 @@ using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using GPSNotepad.Controls;
 using GPSNotepad.Servises.PlaceService;
+using Xamarin.Forms;
+using System.Linq;
 
 namespace GPSNotepad.ViewModels
 {
     public class PinListViewModel : ViewModelBase, INavigatedAware
     {
 
-        private IPlaceService PlaceService;
+        private readonly IPlaceService PlaceService;
 
         private ObservableCollection<PlaceViewModel> pins = new ObservableCollection<PlaceViewModel>();
         public ObservableCollection<PlaceViewModel> Pins
@@ -31,7 +33,12 @@ namespace GPSNotepad.ViewModels
             get => selectedItem;
             set => SetProperty(ref selectedItem, value);
         }
-
+        string searchBarText;
+        public string SearchBarText
+        {
+            get => searchBarText;
+            set => SetProperty(ref searchBarText, value);
+        }
         public PinListViewModel(INavigationService navigationService, IPlaceService PlaceService) : base(navigationService)
         {
             this.PlaceService = PlaceService;
@@ -45,11 +52,28 @@ namespace GPSNotepad.ViewModels
         public ICommand OnDeleteCommand => new DelegateCommand<PlaceViewModel>(DeleteCommand);
         public ICommand OnChangeTabCommand => new DelegateCommand<Object>(ChangeTabCommand);
 
+        public ICommand OnSearchBarTypingCommand => new DelegateCommand<object>(SearchBarTypingCommand);
+
+        private void SearchBarTypingCommand(object obj)
+        {
+            if (string.IsNullOrWhiteSpace(searchBarText))
+            {
+                UpdatePins();
+            }
+            else
+            {
+                Pins = new ObservableCollection<PlaceViewModel>(Pins.Where(u => u.PlaceName.Contains(SearchBarText)));
+
+            }
+
+        }
+
         private void ChangeTabCommand(Object obj)
         {
-            var Params = new NavigationParameters();
-
-            Params.Add("SelectedPlace", (obj as PinListViewModel).SelectedItem);
+            var Params = new NavigationParameters
+            {
+                { "SelectedPlace", (obj as PinListViewModel).SelectedItem }
+            };
 
             NavigationService.SelectTabAsync($"{nameof(MapView)}", Params);
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows.Input;
 using Xamarin.Forms;
@@ -13,26 +14,25 @@ namespace GPSNotepad.Controls
     {
         public CustomMap()
         {
-            PinsSource = new ObservableCollection<Pin>();
+            PinsSource = new ObservableCollection<MyCustomPin>();
             PinsSource.CollectionChanged += PinsSourceOnCollectionChanged;
             MapClicked += CustomMap_MapClicked;
-            
         }
-        
+
         private void CustomMap_MapClicked(object sender, MapClickedEventArgs e)
         {
             MapClickedCommand?.Execute(e);
         }
 
-        public ObservableCollection<Pin> PinsSource
+        public ObservableCollection<MyCustomPin> PinsSource
         {
-            get { return (ObservableCollection<Pin>)GetValue(PinsSourceProperty); }
+            get { return (ObservableCollection<MyCustomPin>)GetValue(PinsSourceProperty); }
             set { SetValue(PinsSourceProperty, value); }
         }
 
         public static readonly BindableProperty PinsSourceProperty = BindableProperty.Create(
                                                          propertyName: "PinsSource",
-                                                         returnType: typeof(ObservableCollection<Pin>),
+                                                         returnType: typeof(ObservableCollection<MyCustomPin>),
                                                          declaringType: typeof(CustomMap),
                                                          defaultValue: null,
                                                          defaultBindingMode: BindingMode.TwoWay,
@@ -54,6 +54,15 @@ namespace GPSNotepad.Controls
                                                          validateValue: null,
                                                          propertyChanged: MapSpanPropertyChanged);
 
+        protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            base.OnPropertyChanged(propertyName);
+
+            if (propertyName == nameof(VisibleRegion))
+            {
+                VisibleChangeCommand?.Execute(VisibleRegion);
+            }
+        }
 
         private static void MapSpanPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
@@ -65,18 +74,17 @@ namespace GPSNotepad.Controls
 
         private static void PinsSourcePropertyChanged(BindableObject bindable, object oldvalue, object newValue)
         {
-            var thisInstance = bindable as CustomMap;
-            var newPinsSource = newValue as ObservableCollection<MyCustomPin>;
-
-            if (thisInstance == null ||
-                newPinsSource == null)
+            if (!(bindable is CustomMap thisInstance) ||
+                !(newValue is ObservableCollection<MyCustomPin> newPinsSource))
                 return;
 
             UpdatePinsSource(thisInstance, newPinsSource);
         }
+
         private void PinsSourceOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             UpdatePinsSource(this, sender as IEnumerable<MyCustomPin>);
+
         }
 
         private static void UpdatePinsSource(Map bindableMap, IEnumerable<MyCustomPin> newSource)
@@ -92,11 +100,24 @@ namespace GPSNotepad.Controls
                 returnType: typeof(ICommand),
                 declaringType: typeof(CustomMap),
                 defaultValue: default(ICommand));
-        
+
         public ICommand MapClickedCommand
         {
             get { return (ICommand)GetValue(MapClickedCommandProperty); }
             set { SetValue(MapClickedCommandProperty, value); }
+        }
+
+        public static readonly BindableProperty VisibleChangeCommandProperty =
+            BindableProperty.Create(
+                propertyName: nameof(VisibleChangeCommand),
+                returnType: typeof(ICommand),
+                declaringType: typeof(CustomMap),
+                defaultValue: default(ICommand));
+
+        public ICommand VisibleChangeCommand
+        {
+            get { return (ICommand)GetValue(VisibleChangeCommandProperty); }
+            set { SetValue(VisibleChangeCommandProperty, value); }
         }
     }
 }

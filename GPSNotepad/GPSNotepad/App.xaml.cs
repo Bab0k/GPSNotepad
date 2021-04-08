@@ -25,8 +25,10 @@ namespace GPSNotepad
         {
             InitializeComponent();
 
-            Realms.RealmConfiguration realmConfiguration = new Realms.RealmConfiguration();
-            realmConfiguration.SchemaVersion = 4;
+            Realms.RealmConfiguration realmConfiguration = new Realms.RealmConfiguration
+            {
+                SchemaVersion = 4
+            };
             Realms.RealmConfiguration.DefaultConfiguration = realmConfiguration;
 
             IAuthorizeService authorizeService = Container.Resolve<AuthorizeService>();

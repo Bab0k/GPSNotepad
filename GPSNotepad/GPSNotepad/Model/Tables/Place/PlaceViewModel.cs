@@ -47,5 +47,12 @@ namespace GPSNotepad.Model.Tables
             get => _position;
             set => SetProperty(ref _position, value);
         }
+        private int _clusteringCount = 1;
+        public int ClusteringCount
+        {
+            get => _clusteringCount;
+            set => SetProperty(ref _clusteringCount, value);
+        }
+
     }
 }

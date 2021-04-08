@@ -14,6 +14,11 @@ namespace GPSNotepad.Controls
             this.MarkerClicked += MyCustomPin_MarkerClicked;
         }
 
+        public int ClusteringCount
+        {
+            get { return (int)GetValue(ClusteringCountProperty); }
+            set { SetValue(ClusteringCountProperty, value); }
+        }
         private void MyCustomPin_MarkerClicked(object sender, PinClickedEventArgs e)
         {
             MarkClickCommand?.Execute(sender);
@@ -24,6 +29,14 @@ namespace GPSNotepad.Controls
                 returnType: typeof(ICommand),
                 declaringType: typeof(CustomMap),
                 defaultValue: default(ICommand));
+
+        public static readonly BindableProperty ClusteringCountProperty =
+            BindableProperty.Create(
+                propertyName: nameof(ClusteringCount),
+                returnType: typeof(int),
+                declaringType: typeof(CustomMap),
+                defaultValue: default(int));
+
 
         public ICommand MarkClickCommand
         {

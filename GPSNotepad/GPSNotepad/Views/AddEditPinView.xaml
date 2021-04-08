@@ -23,14 +23,14 @@
         <controls:CustomMap
             Grid.Row="3"
             Grid.ColumnSpan="2"
-            ItemsSource="{Binding Pin}"
+            ItemsSource="{Binding SinglePin}"
             MapSpan="{Binding MapSpan}"
             MapClickedCommand="{Binding OnMapClickCommand}">
             <controls:CustomMap.ItemTemplate>
                 <DataTemplate>
                     <maps:Pin Position="{Binding Position}"
-                              Label="{Binding Name}" 
-                              Address="{Binding Description}"/>
+                              Label="{Binding Label}" 
+                              Address="{Binding Address}"/>
                 </DataTemplate>
             </controls:CustomMap.ItemTemplate>
         </controls:CustomMap>

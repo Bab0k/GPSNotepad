@@ -14,7 +14,7 @@ namespace GPSNotepad.Servises.Repository
 {
     public class Repository : IRepository
     {
-        static Realm _realm;
+        static readonly Realm _realm;
         static Repository()
         {
             _realm = Realm.GetInstance();

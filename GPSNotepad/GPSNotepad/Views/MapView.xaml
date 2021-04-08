@@ -4,33 +4,55 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:prism="http://prismlibrary.com"
              xmlns:controls="clr-namespace:GPSNotepad.Controls" 
-                        xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
                         prism:ViewModelLocator.AutowireViewModel="True"
              x:Class="GPSNotepad.Views.MapView"
                         x:Name="mapView">
 
         <AbsoluteLayout >
-            <controls:CustomMap MapType="Street" HasZoomEnabled="True" 
+
+        <controls:CustomMap MapType="Street" HasZoomEnabled="True" 
                   AbsoluteLayout.LayoutBounds="1,1,1,1"
                   AbsoluteLayout.LayoutFlags="All"
-                  ItemsSource="{Binding Pins}"
+                  ItemsSource="{Binding ClusteringPins}"
                   MapSpan="{Binding MapSpan}"
+                  VisibleChangeCommand="{Binding OnVisibleChangeCommand}"
                   MapClickedCommand="{Binding OnMapClickedCommand}"
+                  IsShowingUser="True"
                                 >
             <controls:CustomMap.ItemTemplate>
                   <DataTemplate>
-                        <controls:MyCustomPin Position="{Binding Position}"
+                        <controls:MyCustomPin
+                            ClusteringCount="{Binding ClusteringCount}"
+                            Position="{Binding Position}"
                             Label="{Binding PlaceName}"
                             MarkClickCommand="{Binding BindingContext.OnMarkClickedCommand, Source={x:Reference Name=mapView}}"/>
                   </DataTemplate>
             </controls:CustomMap.ItemTemplate>
             </controls:CustomMap>
             <StackLayout  
-            AbsoluteLayout.LayoutBounds=".5,.02,.6,.1"
+            AbsoluteLayout.LayoutBounds=".5,.02,.7,.1"
             AbsoluteLayout.LayoutFlags="All">
-                <Frame CornerRadius="100" BackgroundColor="White">
-                    <Entry Placeholder="Entry keyworlds" TextColor="Black" VerticalOptions="Center"  HeightRequest="40"  />
-                </Frame>
+                <Frame CornerRadius="30" BackgroundColor="White">
+                <SearchBar
+                    Placeholder="Entry keyworlds"
+                    TextColor="Black"
+                    VerticalOptions="Center" 
+                    HeightRequest="40"  
+                    Text="{Binding SearchBarText}"
+                    >
+                    <SearchBar.Behaviors>
+                        <prism:EventToCommandBehavior
+                            EventName="TextChanged"
+                            Command="{Binding OnSearchBarTypingCommand}"
+                            CommandParameter="MyParameter"  />
+
+                        <prism:EventToCommandBehavior 
+                            EventName="Focused"
+                            Command="{Binding OnSearchBarFocusedCommand}"
+                            CommandParameter="{Binding .}"/>
+                    </SearchBar.Behaviors>
+                </SearchBar>
+            </Frame>
             </StackLayout>
         <Frame AbsoluteLayout.LayoutFlags="All"
                AbsoluteLayout.LayoutBounds="0.5,.95,.9,.2"
@@ -51,5 +73,27 @@
                        Grid.Column="1" Grid.Row="1"/>
             </Grid>
         </Frame>
-        </AbsoluteLayout>
+        <Frame AbsoluteLayout.LayoutFlags="SizeProportional"
+               CornerRadius="20"
+               AbsoluteLayout.LayoutBounds="{Binding DropDownSize}"
+               IsVisible="{Binding DropDownDroped}"
+               >
+            <ScrollView VerticalOptions="FillAndExpand">
+                <ListView ItemsSource="{Binding Pins}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextCell Text="{Binding PlaceName}"/>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                    <ListView.Behaviors>
+                        <prism:EventToCommandBehavior EventName="ItemTapped"
+                                          Command="{Binding OnItemTappedCommand}"
+                                          EventArgsParameterPath="Item" />
+                    </ListView.Behaviors>
+
+                </ListView>
+            </ScrollView>
+
+        </Frame>
+    </AbsoluteLayout>
 </views:BaseContentPage>

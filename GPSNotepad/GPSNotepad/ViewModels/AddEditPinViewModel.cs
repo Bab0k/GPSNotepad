@@ -1,7 +1,9 @@
-﻿using GPSNotepad.Model.Tables;
+﻿using GPSNotepad.Controls;
+using GPSNotepad.Model.Tables;
 using GPSNotepad.Repository;
 using GPSNotepad.Servises.PlaceService;
 using Prism.Navigation;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
@@ -12,16 +14,16 @@ namespace GPSNotepad.ViewModels
 {
     public class AddEditPinViewModel : ViewModelBase, INavigationAware
     {
-        IPlaceService PlaceService;
+        private readonly IPlaceService PlaceService;
 
         private PlaceViewModel _place;
-        private string name;
+        private string name = "";
         public string Name
         {
             get => name;
             set => SetProperty(ref name, value);
         }
-        private string description;
+        private string description = "";
         public string Description
         {
             get => description;
@@ -75,6 +77,13 @@ namespace GPSNotepad.ViewModels
                 SetProperty(ref position, value);
             }
         }
+        
+        private ObservableCollection<MyCustomPin> pin = new ObservableCollection<MyCustomPin>();
+        public ObservableCollection<MyCustomPin> SinglePin
+        {
+            get => pin;
+            set => SetProperty(ref pin, value);
+        }
 
         public AddEditPinViewModel(INavigationService navigationService, IPlaceService PlaceService) : base(navigationService)
         {
@@ -86,11 +95,9 @@ namespace GPSNotepad.ViewModels
 
             if (args.PropertyName == nameof(Latitude))
             {
-                double lant;
-
-                if (double.TryParse(Latitude, out lant))
+                if (double.TryParse(Latitude, out double lant))
                 {
-                    if (lant > 90) 
+                    if (lant > 90)
                     {
                         Latitude = "90";
                     }
@@ -102,9 +109,8 @@ namespace GPSNotepad.ViewModels
             }
             if (args.PropertyName == nameof(Latitude))
             {
-                double lng;
 
-                if (double.TryParse(Longitude, out lng))
+                if (double.TryParse(Longitude, out double lng))
                 {
                     if (lng > 180)
                     {
@@ -119,17 +125,19 @@ namespace GPSNotepad.ViewModels
 
             if (args.PropertyName == nameof(Position) || args.PropertyName == nameof(Description))
             {
-                Pin pin = new Pin()
+                MyCustomPin newPin = new MyCustomPin()
                 {
                     Position = Position,
-                    Label = Description,
-
+                    Label = Name,
                 };
 
+                SinglePin.Clear();
+
+                SinglePin.Add(newPin);
                 MapSpan = new MapSpan(Position, 1, 1);
             }
         }
-        public override void OnNavigatedFrom(INavigationParameters parameters)
+    public override void OnNavigatedFrom(INavigationParameters parameters)
         {
             base.OnNavigatedFrom(parameters);
 
