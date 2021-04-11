@@ -22,7 +22,6 @@ namespace GPSNotepad.Servises.AuthorizeService
             {
                 userService.SetCurrentUser(result.First());
             }
-
             return result.Any();
         }
 

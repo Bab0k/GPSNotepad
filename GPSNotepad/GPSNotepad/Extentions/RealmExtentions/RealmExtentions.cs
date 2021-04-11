@@ -25,9 +25,9 @@ namespace GPSNotepad.Model.Extentions.RealmExtentions
                     realmPlace.Position.Longitude
                 )
             };
-
             return basePlace;
         }
+
         public static Place ToRealmPlace(this PlaceViewModel PlaceViewModel)
         {
             Place realmPlace = new Place
@@ -46,6 +46,7 @@ namespace GPSNotepad.Model.Extentions.RealmExtentions
             };
             return realmPlace;
         }
+
         public static User ToRealmUser(this UserViewModel UserViewModel)
         {
             User realmUser = new User
@@ -57,6 +58,7 @@ namespace GPSNotepad.Model.Extentions.RealmExtentions
             };
             return realmUser;
         }
+
         public static UserViewModel ToViewModel(this User User)
         {
             UserViewModel UserViewModel = new UserViewModel
@@ -80,17 +82,7 @@ namespace GPSNotepad.Model.Extentions.RealmExtentions
 
             return UserViewModelCollection;
         }
-        public static ObservableCollection<User> ToRealmUser(this IEnumerable<UserViewModel> UserViewModel)
-        {
-            var RealmUserCollection = new ObservableCollection<User>();
 
-            foreach (var item in UserViewModel)
-            {
-                RealmUserCollection.Add(item.ToRealmUser());
-            }
-
-            return RealmUserCollection;
-        }
         public static ObservableCollection<PlaceViewModel> ToViewModel(this IEnumerable<Place> realmPlace)
         {
             var BasePlace = new ObservableCollection<PlaceViewModel>();
@@ -101,17 +93,6 @@ namespace GPSNotepad.Model.Extentions.RealmExtentions
             }
 
             return BasePlace;
-        }
-
-        public static ObservableCollection<Place> ToRealmPlace(this IEnumerable<PlaceViewModel> PlaceViewModel)
-        {
-            var RealmPlace = new ObservableCollection<Place>();
-
-            foreach (PlaceViewModel item in PlaceViewModel)
-            {
-                RealmPlace.Add(item.ToRealmPlace());
-            }
-            return RealmPlace;
         }
     }
 }

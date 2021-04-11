@@ -3,11 +3,14 @@ using GPSNotepad.Repository;
 using GPSNotepad.Services.PlaceService;
 using GPSNotepad.Servises.AuthorizeService;
 using GPSNotepad.Servises.PlaceService;
+using GPSNotepad.Servises.PlaceSharingService;
 using GPSNotepad.Servises.UserService;
 using GPSNotepad.ViewModels;
 using GPSNotepad.Views;
 using Prism;
 using Prism.Ioc;
+using Prism.Navigation;
+using System;
 using Xamarin.Essentials.Implementation;
 using Xamarin.Essentials.Interfaces;
 using Xamarin.Forms;
@@ -20,7 +23,7 @@ namespace GPSNotepad
             : base(initializer)
         {
         }
-
+        IAuthorizeService AuthorizeService => Container.Resolve<AuthorizeService>();
         protected override async void OnInitialized()
         {
             InitializeComponent();
@@ -31,9 +34,7 @@ namespace GPSNotepad
             };
             Realms.RealmConfiguration.DefaultConfiguration = realmConfiguration;
 
-            IAuthorizeService authorizeService = Container.Resolve<AuthorizeService>();
-
-            if (authorizeService.IsAuthorize())
+            if (AuthorizeService.IsAuthorize())
             {
                 await NavigationService.NavigateAsync($"/{nameof(MainPageView)}");
             }
@@ -41,7 +42,23 @@ namespace GPSNotepad
             {
                 await NavigationService.NavigateAsync($"{nameof(NavigationPage)}/{nameof(SignInView)}");
             }
-
+        }
+        protected override async void OnAppLinkRequestReceived(Uri uri)
+        {
+            if (uri.Host.EndsWith("GPSNotePad.com", StringComparison.OrdinalIgnoreCase))
+            {
+                if (uri.Segments != null && uri.Segments.Length == 6)
+                {
+                    var action = uri.Segments[1].Replace("/", "");
+                    if (action == "Location")
+                    {
+                        await NavigationService.NavigateAsync($"/{nameof(MapView)}", new NavigationParameters
+                        {
+                            { "Uri", uri }
+                        });
+                    }
+                }
+            }
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -60,6 +77,7 @@ namespace GPSNotepad
             containerRegistry.RegisterSingleton<IPlaceService, PlaceService>();
             containerRegistry.RegisterSingleton<IUserService, UserService>();
             containerRegistry.RegisterSingleton<IAuthorizeService, AuthorizeService>();
+            containerRegistry.RegisterSingleton<IPlaceSharingService, PlaceSharingService>();
         }
     }
 }

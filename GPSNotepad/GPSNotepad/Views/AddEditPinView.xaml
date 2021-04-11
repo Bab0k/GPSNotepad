@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<Views:BaseContentPage  xmlns:Views="clr-namespace:GPSNotepad.Views"
+﻿<Views:BaseContentPage  xmlns:Views="clr-namespace:GPSNotepad.Views"
                         xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:GPSNotepad.Controls" 
-             xmlns:prism="http://prismlibrary.com" xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
+             xmlns:prism="http://prismlibrary.com" 
+             xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
              prism:ViewModelLocator.AutowireViewModel="True"
              x:Class="GPSNotepad.Views.AddEditPinView">
 

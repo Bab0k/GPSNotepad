@@ -1,8 +1,11 @@
 ﻿using GPSNotepad.Controls;
 using GPSNotepad.Model.Interface;
+using GPSNotepad.Model.Servises;
 using GPSNotepad.Model.Tables;
 using GPSNotepad.Repository;
 using GPSNotepad.Servises.PlaceService;
+using GPSNotepad.Servises.PlaceSharingService;
+using GPSNotepad.Servises.UserService;
 using Prism.Commands;
 using Prism.Navigation;
 using System;
@@ -18,13 +21,34 @@ namespace GPSNotepad.ViewModels
 {
     public class MapViewModel : ViewModelBase, IViewActionsHandler
     {
+
+        #region Private Variables/Properties
+
         private readonly IPlaceService PlaceService;
+        private readonly IPlaceSharingService placeSharingService;
+        private readonly IUserService userService;
+
+        #endregion
+
+        #region Constructors
+        public MapViewModel(INavigationService navigationService, IPlaceService PlaceService, IPlaceSharingService placeSharingService, IUserService userService) : base(navigationService)
+        {
+            this.PlaceService = PlaceService;
+            this.placeSharingService = placeSharingService;
+            this.userService = userService;
+        }
+
+        #endregion
+
+        #region -- Public properties --
+
+        #region Bindble Properties
 
         ObservableCollection<PlaceViewModel> pins = new ObservableCollection<PlaceViewModel>();
-        public ObservableCollection<PlaceViewModel> Pins 
+        public ObservableCollection<PlaceViewModel> Pins
         {
-            get => pins; 
-            set => SetProperty(ref pins, value); 
+            get => pins;
+            set => SetProperty(ref pins, value);
         }
         ObservableCollection<PlaceViewModel> clusteringPins = new ObservableCollection<PlaceViewModel>();
         public ObservableCollection<PlaceViewModel> ClusteringPins
@@ -38,7 +62,7 @@ namespace GPSNotepad.ViewModels
             get => mapSpan;
             set => SetProperty(ref mapSpan, value);
         }
-        MapSpan oldMapCamera = new MapSpan(new Xamarin.Forms.Maps.Position(0, 0), 0 ,0);
+        MapSpan oldMapCamera = new MapSpan(new Xamarin.Forms.Maps.Position(0, 0), 0, 0);
         public MapSpan OldMapCamera
         {
             get => oldMapCamera;
@@ -95,32 +119,72 @@ namespace GPSNotepad.ViewModels
             set => SetProperty(ref searchBarText, value);
         }
 
+        #endregion
 
+        public ICommand OnMapClickedCommand => new Command<object>(MapClickedCommand);
+        public ICommand OnSearchBarFocusedCommand => new Command<object>(SearchBarFocusedCommand);
+        public ICommand OnMapFocusedCommand => new Command<object>(MapFocusedCommand);
+        public ICommand OnSearchBarTypingCommand => new Command<object>(SearchBarTypingCommand);
+        public ICommand OnVisibleChangeCommand => new Command<object>(VisibleChangeCommand);
+        public ICommand OnMarkClickedCommand => new Command<MyCustomPin>(MarkClickedCommand);
+        public ICommand OnItemTappedCommand => new Command<PlaceViewModel>(ItemTappedCommand);
+        public DelegateCommand OnUpdateMap => new DelegateCommand(OnUpdateMapCommand);
 
-        public MapViewModel(INavigationService navigationService, IPlaceService PlaceService) : base(navigationService)
+        #endregion
+
+        #region -- Iterface implementations --
+
+        public override void OnNavigatedTo(INavigationParameters parameters)
         {
-            this.PlaceService = PlaceService;
+            base.OnNavigatedTo(parameters);
+            PlaceViewModel SelectedPlace;
+            if (parameters.TryGetValue(nameof(SelectedPlace), out SelectedPlace))
+            {
+                Random rand = new Random();
+                MapSpan = new MapSpan(SelectedPlace.Position, 1 + rand.NextDouble() / 100, 1 + rand.NextDouble() / 100);
+            }
+            if (parameters.TryGetValue<Uri>("Uri", out var uri))
+            {
+                userService.AddUser(new Model.Tables.User.UserViewModel());
+                PlaceService.AddPlace(placeSharingService.ParsingSharingPin(uri));
+                OnUpdateMap.Execute();
+                MapSpan = new MapSpan(Pins.First().Position, 1, 1);
+            }
         }
 
-        public DelegateCommand OnUpdateMap => new DelegateCommand(OnUpdateMapCommand);
+        public override void OnAppearing()
+        {
+            OnUpdateMap?.Execute();
+        }
+        public override void OnDisappearing()
+        {
+            base.OnDisappearing();
+
+            DropDownDroped = false;
+            PinClicked = false;
+        }
+
+        #endregion
+
+        #region -- Private helpers -- 
+        private void MapFocusedCommand(object obj)
+        {
+            DropDownDroped = false;
+        }
 
         private void OnUpdateMapCommand()
         {
             Pins = new ObservableCollection<PlaceViewModel>(PlaceService.GetUserPlaces().Where(u => u.Favorite));
-            DropDownSize = new Rectangle(0, 100, 1, 0.06 + 0.07 * (Pins.Count > 5 ? 5 : Pins.Count()));
+            DropDownSize = new Rectangle(0, 100, 1, 0.06 + 0.07 * (Pins.Count > 5 ? 5 : Pins.Count));
             ClusteringPins = new ObservableCollection<PlaceViewModel>(Pins);
-
         }
-        public ICommand OnMarkClickedCommand => new Command<MyCustomPin>(MarkClickedCommand);
-
-        public ICommand OnItemTappedCommand => new Command<PlaceViewModel>(ItemTappedCommand);
 
         private void ItemTappedCommand(PlaceViewModel obj)
         {
             Random rand = new Random();
             MapSpan = new MapSpan(obj.Position, 1 + rand.NextDouble() / 100, 1 + rand.NextDouble() / 100);
         }
-
+        
         private void MarkClickedCommand(MyCustomPin obj)
         {
             if (obj.ClusteringCount == 1)
@@ -132,11 +196,6 @@ namespace GPSNotepad.ViewModels
                 MarkLongitude = obj.Position.Longitude.ToString();
             }
         }
-        public ICommand OnMapClickedCommand => new Command<object>(MapClickedCommand);
-        public ICommand OnSearchBarFocusedCommand => new Command<object>(SearchBarFocusedCommand);
-        public ICommand OnSearchBarTypingCommand => new Command<object>(SearchBarTypingCommand);
-
-        public ICommand OnVisibleChangeCommand => new Command<object>(VisibleChangeCommand);
 
         private void VisibleChangeCommand(object obj)
         {
@@ -146,25 +205,46 @@ namespace GPSNotepad.ViewModels
 
                 OldMapCamera = new MapSpan((obj as MapSpan).Center, (obj as MapSpan).LatitudeDegrees, (obj as MapSpan).LongitudeDegrees);
                 var places = new ObservableCollection<PlaceViewModel>(Clustering(Pins, (obj as MapSpan)));
-                if (places.Count() != ClusteringPins.Count())
+                if (places.Count != ClusteringPins.Count)
                 {
                     ClusteringPins = places;
                 }
             }
         }
+        private void SearchBarTypingCommand(object obj)
+        {
+            if (string.IsNullOrWhiteSpace(searchBarText))
+            {
+                OnUpdateMap?.Execute();
+            }
+            else
+            {
+                Pins = new ObservableCollection<PlaceViewModel>(Pins.Where(u => u.PlaceName.Contains(SearchBarText)));
+                DropDownSize = new Rectangle(0, 100, 1, 0.06 + 0.07 * (Pins.Count > 5 ? 5 : Pins.Count));
+            }
+        }
+        private void SearchBarFocusedCommand(object obj)
+        {
+            DropDownDroped = true;
+        }
 
+        private void MapClickedCommand(object obj)
+        {
+            DropDownDroped = false;
+            PinClicked = false;
+        }
 
         private IEnumerable<PlaceViewModel> Clustering(IEnumerable<PlaceViewModel> collection, MapSpan CameraDistance)
         {
             var newCollection = new List<PlaceViewModel>(collection.Where(u => true));
 
-            for (int i = 0; i < newCollection.Count(); i++)
+            for (int i = 0; i < newCollection.Count; i++)
             {
-                for (int j = i + 1; j < newCollection.Count(); j++)
+                for (int j = i + 1; j < newCollection.Count; j++)
                 {
-                    if (j <= newCollection.Count())
+                    if (j <= newCollection.Count)
                     {
-                        if (Distance.BetweenPositions(newCollection[i].Position, newCollection[j].Position).Meters < CameraDistance.Radius.Meters/10)
+                        if (Distance.BetweenPositions(newCollection[i].Position, newCollection[j].Position).Meters < CameraDistance.Radius.Meters / 10)
                         {
                             Xamarin.Forms.Maps.Position position = new Xamarin.Forms.Maps.Position
                                 (
@@ -184,74 +264,24 @@ namespace GPSNotepad.ViewModels
                             newCollection.Add(newpin);
                         }
                     }
-                    if (newCollection.Count() != collection.Count())
+                    if (newCollection.Count != collection.Count())
                     {
                         break;
                     }
                 }
-                if (newCollection.Count() != collection.Count())
+                if (newCollection.Count != collection.Count())
                 {
                     break;
                 }
             }
-
-
-            if (newCollection.Count() != collection.Count())
+            if (newCollection.Count != collection.Count())
             {
                 newCollection = Clustering(newCollection, CameraDistance).ToList();
             }
-
-
-
             return newCollection;
         }
 
-        private void SearchBarTypingCommand(object obj)
-        {
-            if (string.IsNullOrWhiteSpace(searchBarText))
-            {   
-                OnUpdateMap.Execute();
-            }
-            else
-            {
-                Pins = new ObservableCollection<PlaceViewModel>(Pins.Where(u => u.PlaceName.Contains(SearchBarText)));
-                DropDownSize = new Rectangle(0, 100, 1, 0.06 + 0.07 * (Pins.Count > 5 ? 5 : Pins.Count()));
-
-            }
-        }
-
-        private void SearchBarFocusedCommand(object obj)
-        {
-            DropDownDroped = true;
-        }
-
-        private void MapClickedCommand(object obj)
-        {
-            DropDownDroped = false;
-            PinClicked = false;
-        }
-
-        public override void OnNavigatedTo(INavigationParameters parameters)
-        {
-            base.OnNavigatedTo(parameters);
-            PlaceViewModel SelectedPlace;
-            if (parameters.TryGetValue(nameof(SelectedPlace), out SelectedPlace))
-            {
-                Random rand = new Random();
-                MapSpan = new MapSpan(SelectedPlace.Position, 1 + rand.NextDouble()/100, 1 + rand.NextDouble()/100);
-            }
-        }
-
-        public override void OnAppearing()
-        {
-            OnUpdateMap?.Execute();
-        }
-        public override void OnDisappearing()
-        {
-            base.OnDisappearing();
-
-            DropDownDroped = false;
-            PinClicked = false;
-        }
+        #endregion
+    
     }
 }

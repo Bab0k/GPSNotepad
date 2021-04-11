@@ -9,12 +9,27 @@ namespace GPSNotepad.ViewModels
 {
     public class SignUpViewModel : ViewModelBase
     {
+
+        #region Constructors
+
+        public SignUpViewModel(INavigationService navigationService, IUserService userService) : base(navigationService)
+        {
+            this.userService = userService;
+        }
+
+        #endregion
+
+        #region -- Public properties --
+
+        public DelegateCommand OnSignUpCommand => new DelegateCommand(SignUpCommand);
+
+        #region Bindble Properties
+
         string mail = string.Empty;
         public string Mail
         {
             get => mail;
             set => SetProperty(ref mail, value);
-
         }
 
         string password = string.Empty;
@@ -23,6 +38,7 @@ namespace GPSNotepad.ViewModels
             get => password;
             set => SetProperty(ref password, value);
         }
+
         string name = string.Empty;
         private readonly IUserService userService;
 
@@ -30,14 +46,13 @@ namespace GPSNotepad.ViewModels
         {
             get => name;
             set => SetProperty(ref name, value);
-
         }
 
-        public SignUpViewModel(INavigationService navigationService, IUserService userService) : base(navigationService)
-        {
-            this.userService = userService;
-        }
-        public DelegateCommand OnSignUpCommand => new DelegateCommand(SignUpCommand);
+        #endregion
+
+        #endregion
+
+        #region -- Private helpers -- 
 
         private void SignUpCommand()
         {
@@ -57,5 +72,8 @@ namespace GPSNotepad.ViewModels
                 //ToDo: Alert
             }
         }
-}
+
+        #endregion
+ 
+    }
 }

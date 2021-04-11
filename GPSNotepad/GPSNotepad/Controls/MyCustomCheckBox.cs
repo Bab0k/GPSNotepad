@@ -8,15 +8,11 @@ namespace GPSNotepad.Controls
 {
     public class MyCustomCheckBox: CheckBox
     {
-        public bool IsFavorite
-        {
-            get { return (bool)GetValue(IsFavotiteProperty); }
-            set { SetValue(IsFavotiteProperty, value); }
-        }
+        #region -- Public static properties --
 
         public static readonly BindableProperty IsFavotiteProperty = 
             BindableProperty.Create(
-                   propertyName: "IsFavorite",
+                   propertyName: nameof(IsFavorite),
                    returnType: typeof(bool),
                    declaringType: typeof(MyCustomCheckBox),
                    defaultValue: false,
@@ -29,20 +25,40 @@ namespace GPSNotepad.Controls
                   declaringType: typeof(CustomMap),
                   defaultValue: default(ICommand));
 
-        public ICommand CheckedChangeCommand
-        {
-            get { return (ICommand)GetValue(CheckedChangeCommandProperty); }
-            set { SetValue(CheckedChangeCommandProperty, value); }
-        }
+        #endregion
+
+        #region -- Constructors --
 
         public MyCustomCheckBox():base()
         {
             CheckedChanged += MyCustomCheckBox_CheckedChanged;
         }
 
+        #endregion
+
+        #region -- Public properties --
+
+        public bool IsFavorite
+        {
+            get { return (bool)GetValue(IsFavotiteProperty); }
+            set { SetValue(IsFavotiteProperty, value); }
+        }
+
+        public ICommand CheckedChangeCommand
+        {
+            get { return (ICommand)GetValue(CheckedChangeCommandProperty); }
+            set { SetValue(CheckedChangeCommandProperty, value); }
+        }
+
+        #endregion
+
+        #region -- Private helpers --
+
         private void MyCustomCheckBox_CheckedChanged(object sender, CheckedChangedEventArgs e)
         {
             CheckedChangeCommand?.Execute(sender);
         }
+
+        #endregion
     }
 }

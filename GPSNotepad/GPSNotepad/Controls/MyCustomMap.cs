@@ -12,26 +12,10 @@ namespace GPSNotepad.Controls
 {
     public class CustomMap : Map
     {
-        public CustomMap()
-        {
-            PinsSource = new ObservableCollection<MyCustomPin>();
-            PinsSource.CollectionChanged += PinsSourceOnCollectionChanged;
-            MapClicked += CustomMap_MapClicked;
-        }
-
-        private void CustomMap_MapClicked(object sender, MapClickedEventArgs e)
-        {
-            MapClickedCommand?.Execute(e);
-        }
-
-        public ObservableCollection<MyCustomPin> PinsSource
-        {
-            get { return (ObservableCollection<MyCustomPin>)GetValue(PinsSourceProperty); }
-            set { SetValue(PinsSourceProperty, value); }
-        }
+        #region -- Public static properties --
 
         public static readonly BindableProperty PinsSourceProperty = BindableProperty.Create(
-                                                         propertyName: "PinsSource",
+                                                         propertyName: nameof(PinsSource),
                                                          returnType: typeof(ObservableCollection<MyCustomPin>),
                                                          declaringType: typeof(CustomMap),
                                                          defaultValue: null,
@@ -39,20 +23,68 @@ namespace GPSNotepad.Controls
                                                          validateValue: null,
                                                          propertyChanged: PinsSourcePropertyChanged);
 
-        public MapSpan MapSpan
-        {
-            get { return (MapSpan)GetValue(MapSpanProperty); }
-            set { SetValue(MapSpanProperty, value); }
-        }
-
         public static readonly BindableProperty MapSpanProperty = BindableProperty.Create(
-                                                         propertyName: "MapSpan",
+                                                         propertyName: nameof(MapSpan),
                                                          returnType: typeof(MapSpan),
                                                          declaringType: typeof(CustomMap),
                                                          defaultValue: null,
                                                          defaultBindingMode: BindingMode.TwoWay,
                                                          validateValue: null,
                                                          propertyChanged: MapSpanPropertyChanged);
+
+        public static readonly BindableProperty VisibleChangeCommandProperty = BindableProperty.Create(
+                                                         propertyName: nameof(VisibleChangeCommand),
+                                                         returnType: typeof(ICommand),
+                                                         declaringType: typeof(CustomMap),
+                                                         defaultValue: default(ICommand));
+
+        public static readonly BindableProperty MapClickedCommandProperty = BindableProperty.Create(
+                                                         propertyName: nameof(MapClickedCommand),
+                                                         returnType: typeof(ICommand),
+                                                         declaringType: typeof(CustomMap),
+                                                         defaultValue: default(ICommand));
+        #endregion
+
+        #region -- Constructors --
+
+        public CustomMap()
+        {
+            PinsSource = new ObservableCollection<MyCustomPin>();
+            PinsSource.CollectionChanged += PinsSourceOnCollectionChanged;
+            MapClicked += CustomMap_MapClicked;
+        }
+
+        #endregion
+
+        #region -- Public properties --
+
+        public ObservableCollection<MyCustomPin> PinsSource
+        {
+            get { return (ObservableCollection<MyCustomPin>)GetValue(PinsSourceProperty); }
+            set { SetValue(PinsSourceProperty, value); }
+        }
+
+        public MapSpan MapSpan
+        {
+            get { return (MapSpan)GetValue(MapSpanProperty); }
+            set { SetValue(MapSpanProperty, value); }
+        }
+
+        public ICommand MapClickedCommand
+        {
+            get { return (ICommand)GetValue(MapClickedCommandProperty); }
+            set { SetValue(MapClickedCommandProperty, value); }
+        }
+
+        public ICommand VisibleChangeCommand
+        {
+            get { return (ICommand)GetValue(VisibleChangeCommandProperty); }
+            set { SetValue(VisibleChangeCommandProperty, value); }
+        }
+
+        #endregion
+
+        #region -- Protected implementation --
 
         protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -64,6 +96,10 @@ namespace GPSNotepad.Controls
             }
         }
 
+        #endregion
+
+        #region -- Private helpers --
+
         private static void MapSpanPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var thisInstance = bindable as CustomMap;
@@ -74,17 +110,11 @@ namespace GPSNotepad.Controls
 
         private static void PinsSourcePropertyChanged(BindableObject bindable, object oldvalue, object newValue)
         {
-            if (!(bindable is CustomMap thisInstance) ||
-                !(newValue is ObservableCollection<MyCustomPin> newPinsSource))
-                return;
-
-            UpdatePinsSource(thisInstance, newPinsSource);
-        }
-
-        private void PinsSourceOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            UpdatePinsSource(this, sender as IEnumerable<MyCustomPin>);
-
+            if ((bindable is CustomMap thisInstance) &&
+                (newValue is ObservableCollection<MyCustomPin> newPinsSource))
+            {
+                UpdatePinsSource(thisInstance, newPinsSource);
+            }
         }
 
         private static void UpdatePinsSource(Map bindableMap, IEnumerable<MyCustomPin> newSource)
@@ -94,30 +124,16 @@ namespace GPSNotepad.Controls
                 bindableMap.Pins.Add(pin);
         }
 
-        public static readonly BindableProperty MapClickedCommandProperty =
-            BindableProperty.Create(
-                propertyName: nameof(MapClickedCommand),
-                returnType: typeof(ICommand),
-                declaringType: typeof(CustomMap),
-                defaultValue: default(ICommand));
-
-        public ICommand MapClickedCommand
+        private void CustomMap_MapClicked(object sender, MapClickedEventArgs e)
         {
-            get { return (ICommand)GetValue(MapClickedCommandProperty); }
-            set { SetValue(MapClickedCommandProperty, value); }
+            MapClickedCommand?.Execute(e);
         }
 
-        public static readonly BindableProperty VisibleChangeCommandProperty =
-            BindableProperty.Create(
-                propertyName: nameof(VisibleChangeCommand),
-                returnType: typeof(ICommand),
-                declaringType: typeof(CustomMap),
-                defaultValue: default(ICommand));
-
-        public ICommand VisibleChangeCommand
+        private void PinsSourceOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            get { return (ICommand)GetValue(VisibleChangeCommandProperty); }
-            set { SetValue(VisibleChangeCommandProperty, value); }
+            UpdatePinsSource(this, sender as IEnumerable<MyCustomPin>);
         }
+
+        #endregion
     }
 }

@@ -21,7 +21,6 @@ namespace GPSNotepad.Model.Tables
             return GetEnumerator();
         }
     }
-
     public class Position : RealmObject
     {
         public Position() { }

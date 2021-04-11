@@ -19,7 +19,7 @@ namespace GPSNotepad.Model.Tables.User
             get => _Name;
             set => SetProperty(ref _Name, value);
         }
-        private string _mail = "";
+        private string _mail = Guid.NewGuid().ToString();
         public string Mail
         {
             get => _mail;

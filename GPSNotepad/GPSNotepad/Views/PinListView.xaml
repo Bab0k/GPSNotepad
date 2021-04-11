@@ -14,14 +14,12 @@
                 <SearchBar 
                     Placeholder="Entry keyworlds"
                     TextColor="Black"
-                    Text="{Binding SearchBarText}"
-                    >
+                    Text="{Binding SearchBarText}">
                     <SearchBar.Behaviors>
                         <prism:EventToCommandBehavior
                             EventName="TextChanged"
                             Command="{Binding OnSearchBarTypingCommand}"
                             CommandParameter="MyParameter"  />
-
                     </SearchBar.Behaviors>
                 </SearchBar>
                 <ListView ItemsSource="{Binding Pins}" 
@@ -45,6 +43,10 @@
                                         Command="{Binding BindingContext.OnDeleteCommand, Source={x:Reference Name=pinListView}}"
                                         CommandParameter="{Binding .}"
                                         Text="Delete" />
+                                    <MenuItem
+                                        Command="{Binding BindingContext.OnSharingCommand, Source={x:Reference Name=pinListView}}"
+                                        CommandParameter="{Binding .}"
+                                        Text="Sharing" />
                                 </ViewCell.ContextActions>
                                 <Grid>
                                     <Label Text="{Binding PlaceName}" 
